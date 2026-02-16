@@ -21,6 +21,7 @@ export const MapView: FC<MapViewProps> = ({
   selectedPoint,
   onMapClick,
   onMarkerClick,
+  activePointType,
 }) => {
   const [viewState, setViewState] = useState({
     ...INITIAL_CENTER,
@@ -64,6 +65,15 @@ export const MapView: FC<MapViewProps> = ({
       <button className="reset-button" onClick={handleReset}>
         Reset
       </button>
+      <div
+        className="active-type-indicator"
+        style={{
+          backgroundColor: POINT_COLORS[activePointType],
+        }}
+      >
+        <span className="indicator-label">Adding:</span>
+        <span className="indicator-type">{activePointType}</span>
+      </div>
       <Map
         ref={mapRef}
         {...viewState}

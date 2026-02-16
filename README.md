@@ -1,73 +1,111 @@
-# React + TypeScript + Vite
+# 🌍 Ground Data Explorer
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Interactive geospatial data visualization platform for exploring subsurface data points.
 
-Currently, two official plugins are available:
+![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=flat&logo=typescript&logoColor=white)
+![React](https://img.shields.io/badge/React-20232A?style=flat&logo=react&logoColor=61DAFB)
+![Vite](https://img.shields.io/badge/Vite-646CFF?style=flat&logo=vite&logoColor=white)
+![Vitest](https://img.shields.io/badge/Vitest-6E9F18?style=flat&logo=vitest&logoColor=white)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
 
-## React Compiler
+## Features
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- 🗺️ Interactive Mapbox map with smooth animations
+- 📍 Add, select, and manage geospatial data points
+- 🎨 Filter by type (soil, water, mineral, anomaly)
+- 📊 Real-time statistics and counts
+- 🧪 Comprehensive test coverage (70%+)
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Tech Stack
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+- React 18 + TypeScript
+- Mapbox GL JS + react-map-gl
+- Vite
+- Vitest + React Testing Library
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+---
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## Installation
+
+```bash
+# Clone repository
+git clone https://github.com/AndreaGimenez/ground-data-explorer.git
+cd ground-data-explorer
+
+# Install dependencies
+npm install
+
+# Create .env file
+cp .env.example .env
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+**Add your Mapbox token to `.env`:**
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+VITE_MAPBOX_TOKEN=your_token_here
 ```
+
+Get a free token at: https://account.mapbox.com/access-tokens/
+
+---
+
+## Running
+
+```bash
+# Development server
+npm run dev
+
+# Run tests
+npm test
+
+# Build for production
+npm run build
+```
+
+---
+
+## Project Structure
+
+```
+src/
+├── components/     # React components (MapView, Sidebar)
+├── hooks/          # Custom hooks (useMapControl, useMapPoints)
+├── types/          # TypeScript definitions
+├── utils/          # Helper functions
+└── test/           # Test setup and utilities
+```
+
+---
+
+## Documentation
+
+- **[DECISIONS.md](./docs/01-DECISIONS.md)** - Architecture decisions and refactoring journey
+- **[TESTING.md](./docs/03-TESTING.md)** - Testing strategy and patterns
+
+---
+
+## Roadmap
+
+- [ ] Visual polish and responsive design
+- [ ] Edit point functionality
+- [ ] Data export (JSON, CSV, GeoJSON)
+- [ ] FastAPI backend
+- [ ] PostgreSQL + PostGIS database
+- [ ] Docker deployment
+
+---
+
+## Author
+
+**Andrea Gimenez**
+
+- GitHub: [@AndreaGimenez](https://github.com/AndreaGimenez)
+
+---
+
+## License
+
+MIT

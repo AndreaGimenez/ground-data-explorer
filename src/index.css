@@ -1,0 +1,11 @@
+/* Global Resets - Design system handles the rest */
+body {
+  margin: 0;
+  overflow: hidden;
+}
+
+#root {
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}

@@ -1,4 +1,4 @@
-import { useMemo, type FC } from "react";
+import { useMemo, useState, type FC } from "react"; // ✅ Add useState
 import type {
   DataPoint,
   FilterType,
@@ -22,6 +22,9 @@ export const Sidebar: FC<SidebarProps> = ({
   onPointSelect,
   onPointRemove,
 }) => {
+  // ✅ Mobile toggle state
+  const [isOpen, setIsOpen] = useState(false);
+
   const pointTypes: PointType[] = ["soil", "water", "mineral", "anomaly"];
   const filters: FilterType[] = ["all", "soil", "water", "mineral", "anomaly"];
 
@@ -153,31 +156,68 @@ export const Sidebar: FC<SidebarProps> = ({
       </div>
     );
   };
-  console.log("re render");
+
   return (
-    <div className="sidebar">
-      <div className="sidebar-header">
-        <h2>Data Points</h2>
-        <span className="point-count">{points.length} total</span>
+    <>
+      {/* ✅ Mobile Toggle Button */}
+      <button
+        className="sidebar-mobile-toggle"
+        onClick={() => setIsOpen(!isOpen)}
+        aria-label={isOpen ? "Close sidebar" : "Open sidebar"}
+      >
+        <span className="toggle-icon">{isOpen ? "✕" : "☰"}</span>
+        <span className="toggle-text">
+          {isOpen ? "Close" : `${points.length} Points`}
+        </span>
+      </button>
+
+      {/* ✅ Sidebar with is-open class */}
+      <div className={`sidebar ${isOpen ? "is-open" : ""}`}>
+        {/* ✅ Mobile Header (visible only on mobile) */}
+        <div className="sidebar-mobile-header">
+          <h2>Data Points</h2>
+          <button
+            className="mobile-close-button"
+            onClick={() => setIsOpen(false)}
+            aria-label="Close"
+          >
+            ✕
+          </button>
+        </div>
+
+        {/* Desktop Header (hidden on mobile) */}
+        <div className="sidebar-header">
+          <h2>Data Points</h2>
+          <span className="point-count">{points.length} total</span>
+        </div>
+
+        <div className="section">
+          <h3>Add New Point</h3>
+          <div className="point-type-selector">{renderPointTypes()}</div>
+          <p className="hint">
+            Click on the map to add a {activePointType} point
+          </p>
+        </div>
+
+        <div className="section">
+          <h3>Filter</h3>
+          <div className="filter-buttons">{renderFilters()}</div>
+        </div>
+
+        <div className="section points-list">
+          <h3>Points List</h3>
+          {renderPointsList()}
+        </div>
       </div>
 
-      <div className="section">
-        <h3>Add New Point</h3>
-        <div className="point-type-selector">{renderPointTypes()}</div>
-        <p className="hint">
-          Click on the map to add a {activePointType} point
-        </p>
-      </div>
-
-      <div className="section">
-        <h3>Filter</h3>
-        <div className="filter-buttons">{renderFilters()}</div>
-      </div>
-
-      <div className="section points-list">
-        <h3>Points List</h3>
-        {renderPointsList()}
-      </div>
-    </div>
+      {/* ✅ Backdrop (visible only when open on mobile) */}
+      {isOpen && (
+        <div
+          className="sidebar-backdrop"
+          onClick={() => setIsOpen(false)}
+          aria-label="Close sidebar"
+        />
+      )}
+    </>
   );
 };
