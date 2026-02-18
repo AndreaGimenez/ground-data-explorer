@@ -1,44 +1,77 @@
 from datetime import datetime
 from uuid import uuid4
-from app.database import points_db
-from app.schemas import DataPoint, DataPointCreate, DataPointUpdate
+from sqlalchemy.orm import Session
+from app.models import DataPointModel, PointTypeEnum
+from app.schemas import DataPointCreate, DataPointUpdate
 
-def get_all_points() -> list[DataPoint]:
-    """Get all points"""
-    return list(points_db.values())
+def get_all_points(db: Session) -> list[DataPointModel]:
+    """Get all points from database"""
+    return db.query(DataPointModel).all()
 
-def get_point(point_id: str) -> DataPoint | None:
+def get_point(db: Session, point_id: str) -> DataPointModel | None:
     """Get a single point by ID"""
-    return points_db.get(point_id)
+    return db.query(DataPointModel).filter(DataPointModel.id == point_id).first()
 
-def create_point(point_data: DataPointCreate) -> DataPoint:
-    """Create a new point"""
+def create_point(db: Session, point_data: DataPointCreate) -> DataPointModel:
+    """Create a new point in database"""
     point_id = str(uuid4())
-    point = DataPoint(
+    
+    # Extract coordinates
+    longitude, latitude = point_data.coordinates
+    
+    # Create model instance
+    db_point = DataPointModel(
         id=point_id,
-        createdAt=datetime.now(),
-        **point_data.model_dump()
+        name=point_data.name,
+        description=point_data.description,
+        type=PointTypeEnum(point_data.type),
+        longitude=longitude,
+        latitude=latitude,
+        depth=point_data.depth,
+        value=point_data.value,
+        created_at=datetime.now(),
     )
-    points_db[point_id] = point
-    return point
+    
+    # Add to database
+    db.add(db_point)
+    db.commit()
+    db.refresh(db_point)  # Get the saved instance with all fields
+    
+    return db_point
 
-def update_point(point_id: str, point_data: DataPointUpdate) -> DataPoint | None:
+def update_point(db: Session, point_id: str, point_data: DataPointUpdate) -> DataPointModel | None:
     """Update an existing point"""
-    if point_id not in points_db:
+    db_point = get_point(db, point_id)
+    if not db_point:
         return None
     
-    existing_point = points_db[point_id]
-    
-    # Update only provided fields
+    # Update fields that were provided
     update_data = point_data.model_dump(exclude_unset=True)
-    updated_point = existing_point.model_copy(update=update_data)
     
-    points_db[point_id] = updated_point
-    return updated_point
+    # Handle coordinates separately
+    if "coordinates" in update_data:
+        longitude, latitude = update_data.pop("coordinates")
+        db_point.longitude = longitude
+        db_point.latitude = latitude
+    
+    # Update other fields
+    for field, value in update_data.items():
+        if field == "type":
+            value = PointTypeEnum(value)
+        setattr(db_point, field, value)
+    
+    db.commit()
+    db.refresh(db_point)
+    
+    return db_point
 
-def delete_point(point_id: str) -> bool:
-    """Delete a point"""
-    if point_id in points_db:
-        del points_db[point_id]
-        return True
-    return False
+def delete_point(db: Session, point_id: str) -> bool:
+    """Delete a point from database"""
+    db_point = get_point(db, point_id)
+    if not db_point:
+        return False
+    
+    db.delete(db_point)
+    db.commit()
+    
+    return True
