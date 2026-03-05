@@ -1,9 +1,13 @@
+import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
 from app.models import Base
 
-# Database URL
-DATABASE_URL = "postgresql://grounduser:groundpass123@localhost/grounddata"
+# Get database URL from environment (Docker sets this)
+DATABASE_URL = os.getenv(
+    "DATABASE_URL",
+    "postgresql://grounduser:groundpass123@localhost/grounddata" 
+)
 
 # Create engine
 engine = create_engine(
