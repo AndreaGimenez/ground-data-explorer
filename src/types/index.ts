@@ -29,6 +29,8 @@ export type UseMapPointsProps = {
   setActivePointType: Dispatch<SetStateAction<PointType>>;
   addPoint: (coordinates: [number, number]) => void;
   removePoint: (pointId: string) => void;
+  loading: boolean;
+  error: string | null;
 };
 
 export interface MapViewProps {

@@ -1,75 +1,73 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { DataPoint, PointType, UseMapPointsProps } from "../types";
 import { generateId } from "../utils/helpers";
-
-// Sample data to start with
-const INITIAL_POINTS: DataPoint[] = [
-  {
-    id: "point-1",
-    name: "Sample Site A",
-    description: "High mineral concentration detected",
-    type: "mineral",
-    coordinates: [4.9041, 52.3676],
-    depth: 12.5,
-    value: 87.3,
-    createdAt: new Date("2026-01-15"),
-  },
-  {
-    id: "point-2",
-    name: "Sample Site B",
-    description: "Underground water layer",
-    type: "water",
-    coordinates: [4.4777, 51.9244],
-    depth: 8.2,
-    value: 94.1,
-    createdAt: new Date("2026-01-20"),
-  },
-  {
-    id: "point-3",
-    name: "Sample Site C",
-    description: "Soil composition analysis",
-    type: "soil",
-    coordinates: [4.3007, 52.0705],
-    depth: 5.0,
-    value: 62.8,
-    createdAt: new Date("2026-02-01"),
-  },
-];
+import { pointsApi } from "../services/api";
 
 export const useMapPoints = (): UseMapPointsProps => {
-  const [points, setPoints] = useState<DataPoint[]>(INITIAL_POINTS);
+  const [points, setPoints] = useState<DataPoint[]>([]);
   const [selectedPoint, setSelectedPoint] = useState<DataPoint | null>(null);
   const [activePointType, setActivePointType] = useState<PointType>("soil");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const addPoint = (coordinates: [number, number]) => {
-    const newPoint: DataPoint = {
-      id: generateId(),
-      name: `Site ${points.length + 1}`,
-      description: "New data point added",
-      type: activePointType,
-      coordinates,
-      depth: Math.random() * 20,
-      value: Math.random() * 100,
-      createdAt: new Date(),
+  useEffect(() => {
+    const fetchPoints = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const data = await pointsApi.getAll();
+        setPoints(data);
+      } catch (err) {
+        console.error("Failed to fetch points:", err);
+        setError("Failed to load data points. Is the backend running?");
+      } finally {
+        setLoading(false);
+      }
     };
-    setPoints((prevPoints) => [...prevPoints, newPoint]);
-    setSelectedPoint(newPoint);
+
+    fetchPoints();
+  }, []);
+
+  const addPoint = async (coordinates: [number, number]) => {
+    try {
+      // Generate a unique name
+      const timestamp = new Date().toLocaleTimeString();
+      const newPoint: Omit<DataPoint, "id" | "createdAt"> = {
+        name: `${activePointType} point ${timestamp}`,
+        description: `${activePointType} data point added at ${new Date().toLocaleString()}`,
+        type: activePointType,
+        coordinates,
+        depth: Math.random() * 30 + 5, // Random depth 5-35m
+        value: Math.random() * 100, // Random value 0-100
+      };
+
+      const createdPoint = await pointsApi.create(newPoint);
+      setPoints((prev) => [...prev, createdPoint]);
+      setSelectedPoint(createdPoint);
+    } catch (err) {
+      console.error("Failed to create point:", err);
+      setError("Failed to create point. Please try again.");
+    }
   };
 
-  const removePoint = (pointId: string) => {
-    setPoints((prevPoints) =>
-      prevPoints.filter((point) => point.id !== pointId),
-    );
-    setSelectedPoint((prevPoint) =>
-      prevPoint?.id === pointId ? null : prevPoint,
-    );
+  const removePoint = async (pointId: string) => {
+    try {
+      await pointsApi.delete(pointId);
+      setPoints((prev) => prev.filter((point) => point.id !== pointId));
+      setSelectedPoint((prev) => (prev?.id === pointId ? null : prev));
+    } catch (err) {
+      console.error("Failed to delete point:", err);
+      setError("Failed to delete point. Please try again.");
+    }
   };
 
   return {
     points,
     selectedPoint,
-    setSelectedPoint,
     activePointType,
+    loading,
+    error,
+    setSelectedPoint,
     setActivePointType,
     addPoint,
     removePoint,
