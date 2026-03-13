@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.api.routes import points
+from app.api.routes import points, agent
 
 app = FastAPI(
     title="Ground Data Explorer API",
@@ -22,6 +23,7 @@ app.add_middleware(
 
 # Include routers
 app.include_router(points.router, prefix="/api/points", tags=["points"])
+app.include_router(agent.router, prefix="/api/agent", tags=["agent"])  # ✅ Add agent routes
 
 # Health check
 @app.get("/health")

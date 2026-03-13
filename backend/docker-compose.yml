@@ -1,7 +1,8 @@
 version: "3.8"
+
 name: ground-explorer
+
 services:
-  # PostgreSQL Database
   db:
     image: postgres:15-alpine
     container_name: ground-explorer-db
@@ -21,7 +22,6 @@ services:
     networks:
       - grounddata_network
 
-  # FastAPI Backend
   backend:
     build:
       context: .
@@ -31,11 +31,14 @@ services:
       - "8000:8000"
     environment:
       DATABASE_URL: postgresql://grounduser:groundpass123@db:5432/grounddata
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      VITE_MAPBOX_TOKEN: ${VITE_MAPBOX_TOKEN}
+      LANGFUSE_PUBLIC_KEY: ${LANGFUSE_PUBLIC_KEY} # ✅ Add this
+      LANGFUSE_SECRET_KEY: ${LANGFUSE_SECRET_KEY} # ✅ Add this
     depends_on:
       db:
         condition: service_healthy
     volumes:
-      # Mount code for development (hot reload)
       - ./app:/app/app
     networks:
       - grounddata_network
