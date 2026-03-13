@@ -22,6 +22,7 @@ export const MapView: FC<MapViewProps> = ({
   onMapClick,
   onMarkerClick,
   activePointType,
+  isAnalyzing,
 }) => {
   const [viewState, setViewState] = useState({
     ...INITIAL_CENTER,
@@ -62,18 +63,15 @@ export const MapView: FC<MapViewProps> = ({
 
   return (
     <>
-      <button className="reset-button" onClick={handleReset}>
-        Reset
-      </button>
-      <div
-        className="active-type-indicator"
-        style={{
-          backgroundColor: POINT_COLORS[activePointType],
-        }}
-      >
-        <span className="indicator-label">Adding:</span>
-        <span className="indicator-type">{activePointType}</span>
-      </div>
+      {isAnalyzing && (
+        <div className="analyzing-overlay">
+          <div className="analyzing-content">
+            <div className="loading-spinner"></div>
+            <p>🤖 AI analyzing location...</p>
+          </div>
+        </div>
+      )}
+
       <Map
         ref={mapRef}
         {...viewState}
@@ -85,7 +83,12 @@ export const MapView: FC<MapViewProps> = ({
       >
         <NavigationControl position="bottom-right" />
         <GeolocateControl />
-
+        {!isAnalyzing && (
+          <div className="active-type-indicator">
+            {/* <span className="type-emoji">{getTypeEmoji(activePointType)}</span> */}
+            <span>Click map to add {activePointType} point</span>
+          </div>
+        )}
         {points.map((point) => {
           return (
             <Marker

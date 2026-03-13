@@ -14,9 +14,7 @@ interface ApiDataPoint {
   createdAt: string; // ISO date string from API
 }
 
-/**
- * Generic fetch wrapper with error handling and JSON parsing
- */
+// Generic fetch wrapper with error handling and JSON parsing
 async function fetchApi<T>(
   endpoint: string,
   options?: RequestInit,
@@ -43,9 +41,7 @@ async function fetchApi<T>(
   return response.json();
 }
 
-/**
- * Convert API response to frontend format
- */
+// Convert API response to frontend format
 const fromApiFormat = (apiPoint: ApiDataPoint): DataPoint => ({
   id: apiPoint.id,
   name: apiPoint.name,
@@ -57,9 +53,7 @@ const fromApiFormat = (apiPoint: ApiDataPoint): DataPoint => ({
   createdAt: new Date(apiPoint.createdAt), // Convert ISO string to Date
 });
 
-/**
- * Convert frontend format to API request format
- */
+// Convert frontend format to API request format
 const toApiFormat = (point: Omit<DataPoint, "id" | "createdAt">) => ({
   name: point.name,
   description: point.description,
@@ -68,30 +62,42 @@ const toApiFormat = (point: Omit<DataPoint, "id" | "createdAt">) => ({
   depth: point.depth,
   value: point.value,
 });
+export interface PointTypeSuggestion {
+  type: PointType;
+  confidence: "high" | "medium" | "low";
+  explanation: string;
+  location: string;
+}
 
-/**
- * API functions for data points
- */
+export const agentApi = {
+  // Get AI suggestion for point type based on coordinates
+  suggestPointType: async (
+    longitude: number,
+    latitude: number,
+  ): Promise<PointTypeSuggestion> => {
+    const data = await fetchApi<PointTypeSuggestion>(
+      "/api/agent/suggest-point-type",
+      {
+        method: "POST",
+        body: JSON.stringify({ longitude, latitude }),
+      },
+    );
+    return data;
+  },
+};
+
+// API functions for data points
 export const pointsApi = {
-  /**
-   * Get all data points
-   */
   getAll: async (): Promise<DataPoint[]> => {
     const data = await fetchApi<ApiDataPoint[]>("/api/points/");
     return data.map(fromApiFormat);
   },
 
-  /**
-   * Get a single data point by ID
-   */
   getById: async (id: string): Promise<DataPoint> => {
     const data = await fetchApi<ApiDataPoint>(`/api/points/${id}/`);
     return fromApiFormat(data);
   },
 
-  /**
-   * Create a new data point
-   */
   create: async (
     point: Omit<DataPoint, "id" | "createdAt">,
   ): Promise<DataPoint> => {
@@ -102,9 +108,6 @@ export const pointsApi = {
     return fromApiFormat(data);
   },
 
-  /**
-   * Update an existing data point
-   */
   update: async (
     id: string,
     point: Partial<Omit<DataPoint, "id" | "createdAt">>,
@@ -116,9 +119,6 @@ export const pointsApi = {
     return fromApiFormat(data);
   },
 
-  /**
-   * Delete a data point
-   */
   delete: async (id: string): Promise<void> => {
     await fetchApi<void>(`/api/points/${id}`, {
       method: "DELETE",

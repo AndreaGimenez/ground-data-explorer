@@ -4,6 +4,7 @@ import { useMapPoints } from "./hooks/useMapPoints";
 import type { FilterType } from "./types";
 import { Sidebar } from "./components/Sidebar/Sidebar";
 import { MapView } from "./components/Map/MapView";
+import { AISuggestionModal } from "./components/AISuggestionModal/AISuggestionModal";
 
 export default function App() {
   const {
@@ -16,9 +17,13 @@ export default function App() {
     setSelectedPoint,
     loading,
     error,
+    aiSuggestion,
+    acceptSuggestion,
+    overrideSuggestion,
+    cancelSuggestion,
+    isAnalyzing,
   } = useMapPoints();
 
-  // ✅ UI concern lives in the UI layer
   const [filter, setFilter] = useState<FilterType>("all");
 
   const filteredPoints = useMemo(
@@ -62,7 +67,10 @@ export default function App() {
     <div className="app">
       <header className="app-header">
         <h1>🌍 Ground Data Explorer</h1>
-        <p>Click on the map to add a data point</p>
+        <p>
+          Interactive geospatial data visualization platform with AI-powered
+          type detection
+        </p>
       </header>
 
       <div className="app-body">
@@ -72,6 +80,7 @@ export default function App() {
           activePointType={activePointType}
           onMapClick={addPoint}
           onMarkerClick={setSelectedPoint}
+          isAnalyzing={isAnalyzing}
         />
 
         <Sidebar
@@ -84,6 +93,15 @@ export default function App() {
           onPointSelect={setSelectedPoint}
           onPointRemove={removePoint}
         />
+
+        {aiSuggestion && (
+          <AISuggestionModal
+            suggestion={aiSuggestion}
+            onAccept={acceptSuggestion}
+            onReject={overrideSuggestion}
+            onCancel={cancelSuggestion}
+          />
+        )}
       </div>
     </div>
   );

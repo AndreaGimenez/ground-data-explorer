@@ -39,6 +39,7 @@ export interface MapViewProps {
   activePointType: PointType;
   onMapClick: (coordinates: [number, number]) => void;
   onMarkerClick: (point: DataPoint) => void;
+  isAnalyzing?: boolean;
 }
 export interface FlyToOptions {
   longitude: number;
