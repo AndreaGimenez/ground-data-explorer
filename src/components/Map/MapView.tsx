@@ -47,10 +47,6 @@ export const MapView: FC<MapViewProps> = ({
     onMapClick([lng, lat]);
   };
 
-  const handleReset = () => {
-    flyTo({ ...INITIAL_CENTER, zoom: INITIAL_ZOOM });
-  };
-
   const handleOnMove = (e: {
     viewState: SetStateAction<{
       zoom: number;
